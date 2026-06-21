@@ -3,7 +3,7 @@ package com.networx.networx.user;
 import com.networx.networx.enums.Role;
 import lombok.*;
 
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -23,5 +23,5 @@ public class UserResponseDTO {
     private String token;
     private boolean mfaEnabled;
     private String status;
-    private DateTimeFormatter lastLogin;
+    private LocalDateTime lastLogin;
 }

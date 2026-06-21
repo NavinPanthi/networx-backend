@@ -2,6 +2,7 @@ package com.networx.networx.user;
 
 import com.networx.networx.dto.responses.PageResponseDTO;
 import com.networx.networx.enums.Role;
+import com.networx.networx.enums.UserStatus;
 import com.networx.networx.exceptions.CustomIOException;
 import com.networx.networx.exceptions.EmailAlreadyExistsException;
 import com.networx.networx.publics.UserRegistrationDTO;
@@ -36,6 +37,7 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(dto.getPassword()));
             user.setPhone(dto.getPhone());
             user.setAddress(dto.getAddress());
+            user.setStatus(UserStatus.PENDING);
             //  Ensure roles are assigned correctly
             List<Role> roles = (dto.getRoles() == null || dto.getRoles().isEmpty()) ? List.of(Role.candidate) : dto.getRoles();
             user.setRoles(roles);
@@ -82,7 +84,12 @@ public class UserService {
     }
 
     public User findByUserName(String email) {
-        return userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+        user.setStatus(UserStatus.ACTIVE);
+        return user;
     }
 
     public boolean isEmailExists(String email) {
@@ -92,6 +99,11 @@ public class UserService {
     public void changePassword(User user, String password) {
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
+    }
+    public boolean updateLastLogin(User user){
+        user.setLastLogin(LocalDateTime.now());
+        userRepository.save(user);
+        return true;
     }
     public UserResponseDTO getUserResponse(User user) {
         return UserResponseDTO.builder()
@@ -105,6 +117,9 @@ public class UserService {
                 .imageData(user.getImageData())
                 .roles(user.getRoles())
                 .token(user.getToken())
+                .mfaEnabled(user.getMfaEnabled())
+                .status(user.getStatus().name())
+                .lastLogin(user.getLastLogin())
                 .build();
     }
 

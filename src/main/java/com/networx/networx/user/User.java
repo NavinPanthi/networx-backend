@@ -2,8 +2,10 @@ package com.networx.networx.user;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.networx.networx.device.Device;
 import com.networx.networx.enums.Role;
 import com.networx.networx.enums.UserStatus;
+import com.networx.networx.otp.OTP;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,7 +37,6 @@ public class User {
     @Lob
     private byte[] imageData;
 
-    //If seller, phone and address should be provided too during registration.
     private String phone;
 
     private String address;
@@ -49,6 +50,13 @@ public class User {
     @Transient  // This ensures the field is NOT stored in the database
     @JsonIgnore
     private String token;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<OTP> otpVerifications;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Device> devices;
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;
