@@ -1,6 +1,5 @@
-package com.networx.networx.device;
+package com.networx.networx.accesslog;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.networx.networx.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,21 +12,20 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Device {
-
+public class AccessLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long deviceId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference
     private User user;
 
-    @Column(nullable = false, unique = true)
-    private String deviceFingerprint;
+    private String action;
 
-    private Boolean isTrusted;
+    private String ipAddress;
 
-    private LocalDateTime lastUsed;
+    private Boolean accessGranted;
+
+    private LocalDateTime timestamp;
 }

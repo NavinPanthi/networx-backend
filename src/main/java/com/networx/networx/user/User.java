@@ -2,6 +2,7 @@ package com.networx.networx.user;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.networx.networx.accesslog.AccessLog;
 import com.networx.networx.device.Device;
 import com.networx.networx.enums.Role;
 import com.networx.networx.enums.UserStatus;
@@ -56,7 +57,12 @@ public class User {
     private List<OTP> otpVerifications;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Device> devices;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<AccessLog>  accessLogs;
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;
