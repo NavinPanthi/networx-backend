@@ -237,7 +237,7 @@ public class PublicController {
 
             deviceService.updateLastUsed(device);
             userService.updateLastLogin(user);
-
+            deviceService.save(device);
             user.setToken(jwtService.generateToken(user.getEmail()));
             accessLogService.log(
                     user,

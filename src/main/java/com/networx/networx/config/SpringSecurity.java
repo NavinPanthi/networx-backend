@@ -46,7 +46,6 @@ public class SpringSecurity {
         return http.cors(Customizer.withDefaults()).
                 authorizeHttpRequests(request -> request
                         .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/api/users/orders/**", "api/users/cart/**").hasRole("user")
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("admin")
                         .requestMatchers("api/company/**").hasRole("company")

@@ -13,6 +13,9 @@ public class DeviceService {
 
     private final DeviceRepository deviceRepository;
 
+    public Device save(Device device){
+        return deviceRepository.save(device);
+    }
     public Device registerDevice(
             User user,
             String fingerprint
