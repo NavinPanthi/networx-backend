@@ -198,7 +198,6 @@ public class PublicController {
                         "OTP already used",
                         false,
                         HttpStatus.BAD_REQUEST
-
                 );
             }
             if (otpRecord.getExpiryTime().isBefore(LocalDateTime.now())) {

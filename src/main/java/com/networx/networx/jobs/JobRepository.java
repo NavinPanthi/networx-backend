@@ -59,6 +59,6 @@ public interface JobRepository extends JpaRepository<Job, Long> {
             Pageable pageable
     );
 
-    // Find internship by id and company
+    // Find job by id and company
     Optional<Job> findByIdAndUserId(Long jobId, Long companyId);
 }

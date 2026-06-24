@@ -1,5 +1,6 @@
 package com.networx.networx.jobs;
 
+import com.networx.networx.accesslog.AccessLogService;
 import com.networx.networx.dto.responses.PageResponseDTO;
 import com.networx.networx.enums.Level;
 import com.networx.networx.enums.Payment;
@@ -12,6 +13,7 @@ import com.networx.networx.jobs.Job;
 import com.networx.networx.user.User;
 import com.networx.networx.utils.AuthUtils;
 import com.networx.networx.utils.PaginationUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ public class JobService {
     @Autowired
     private AuthUtils authUtils;
 
+    @Autowired
+    private AccessLogService accesslogService;
     //--------------------------------------
     // PUBLIC: Anyone can view jobs
     //--------------------------------------
@@ -64,7 +68,8 @@ public class JobService {
             List<Payment> payments,
             String search,
             int page,
-            int size
+            int size,
+            HttpServletRequest httpServletRequest
     ) {
         Long jobId = authUtils.getAuthUser().getId();
 
@@ -76,14 +81,24 @@ public class JobService {
                 search,
                 PaginationUtils.createPageable(page, size)
         );
-
+        accesslogService.log(
+                authUtils.getAuthUser(),
+                "JOBS FETCHED",
+                httpServletRequest.getRemoteAddr(),
+                true
+        );
         return PaginationUtils.getPageResponse(jobs);
     }
 
-    public Job getSingleJobByCompany(Long jobId) {
+    public Job getSingleJobByCompany(Long jobId, HttpServletRequest httpServletRequest) {
         Long companyId = authUtils.getAuthUser().getId();
-
-        return jobRepository.findByIdAndUserId(jobId, jobId)
+        accesslogService.log(
+                authUtils.getAuthUser(),
+                "JOBS FETCHED",
+                httpServletRequest.getRemoteAddr(),
+                true
+        );
+        return jobRepository.findByIdAndUserId(jobId, companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Job not found or you do not own this job."));
     }
 
@@ -91,7 +106,7 @@ public class JobService {
     // CRUD: Create Job (with images)
     //--------------------------------------
     @Transactional(rollbackFor = Exception.class)
-    public Job createJob(JobDTO dto, User company) throws CustomIOException {
+    public Job createJob(JobDTO dto, User company, HttpServletRequest httpServletRequest) throws CustomIOException {
         try {
             Job job = new Job();
             job.setTitle(dto.getTitle());
@@ -100,7 +115,7 @@ public class JobService {
             job.setType(dto.getType());
             job.setPayment(dto.getPayment());
             job.setUser(company);
-
+            System.out.println(job);
             // handle images if provided
             if (dto.getImages() != null && !dto.getImages().isEmpty()) {
                 List<com.networx.networx.jobs.Image> images = new ArrayList<>();
@@ -119,9 +134,15 @@ public class JobService {
                     job.setImages(images);
                 }
             }
-
+            accesslogService.log(
+                    company,
+                    "OTP_VERIFICATION",
+                    httpServletRequest.getRemoteAddr(),
+                    true
+            );
             return jobRepository.save(job);
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             throw new CustomIOException("File error occurred while adding job.", e);
         }
     }

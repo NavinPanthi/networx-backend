@@ -2,10 +2,12 @@ package com.networx.networx.user;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.networx.networx.accesslog.AccessLog;
 import com.networx.networx.device.Device;
 import com.networx.networx.enums.Role;
 import com.networx.networx.enums.UserStatus;
+import com.networx.networx.jobs.Job;
 import com.networx.networx.otp.OTP;
 import jakarta.persistence.*;
 import lombok.*;
@@ -63,6 +65,13 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<AccessLog>  accessLogs;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @JsonIgnore
+    private List<Job> jobs;
+
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;

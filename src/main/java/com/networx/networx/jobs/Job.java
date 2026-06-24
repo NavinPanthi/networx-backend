@@ -50,7 +50,7 @@ public class Job {
 
     @ToString.Exclude
     @ManyToOne
-    @JoinColumn(name = "job_id", nullable = false)
+    @JoinColumn(name = "company_id", nullable = false)
     @JsonBackReference
     private User user;
 

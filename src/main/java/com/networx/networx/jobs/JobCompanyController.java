@@ -11,6 +11,7 @@ import com.networx.networx.jobs.JobDTO;
 import com.networx.networx.jobs.JobService;
 import com.networx.networx.user.User;
 import com.networx.networx.utils.AuthUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -36,13 +37,12 @@ public class JobCompanyController {
     @Autowired
     private AuthUtils authUtils;
 
-    @Transactional
     @PostMapping
-    public ResponseEntity<?> registerJob(@Valid @ModelAttribute JobDTO dto) {
+    public ResponseEntity<?> registerJob(@Valid @ModelAttribute JobDTO dto, HttpServletRequest httpServletRequest) {
         try {
             User authUser = authUtils.getAuthUser();
             return responseHandler.wrapResponse(
-                    jobService.createJob(dto, authUser),
+                    jobService.createJob(dto, authUser, httpServletRequest),
                     "Job added successfully.",
                     true,
                     HttpStatus.CREATED
@@ -59,16 +59,17 @@ public class JobCompanyController {
             @RequestParam(required = false) List<Payment> payments,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "20") Integer size
+            @RequestParam(defaultValue = "20") Integer size,
+            HttpServletRequest httpServletRequest
     ) {
-        PageResponseDTO<Job> jobs = jobService.getAllJobsByCompanyWithFilters(levels, types, payments, search, page, size);
+        PageResponseDTO<Job> jobs = jobService.getAllJobsByCompanyWithFilters(levels, types, payments, search, page, size, httpServletRequest);
 
         return responseHandler.wrapResponse(jobs, "Jobs available.", true, HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<?> getSingleJobByCompany(@PathVariable Long id) {
-        Job job = jobService.getSingleJobByCompany(id);
+    public ResponseEntity<?> getSingleJobByCompany(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+        Job job = jobService.getSingleJobByCompany(id, httpServletRequest);
         return responseHandler.wrapResponse(job, "Job available.", true, HttpStatus.OK);
     }
 
@@ -81,10 +82,11 @@ public class JobCompanyController {
     @PatchMapping("{id}")
     public ResponseEntity<?> updateSingleJob(
             @PathVariable Long id,
-            @Valid @ModelAttribute JobDTO dto
+            @Valid @ModelAttribute JobDTO dto,
+            HttpServletRequest httpServletRequest
     ) {
         try {
-            Job job = jobService.getSingleJobByCompany(id);
+            Job job = jobService.getSingleJobByCompany(id, httpServletRequest);
             return responseHandler.wrapResponse(
                     jobService.updateJob(dto, job),
                     "Job updated successfully.",
@@ -98,10 +100,11 @@ public class JobCompanyController {
 
     @DeleteMapping("{jobId}/remove-images/{imageId}")
     public ResponseEntity<?> removeImagesFromJob(
-            @PathVariable Long internshipId,
-            @PathVariable Long imageId
+            @PathVariable Long jobId,
+            @PathVariable Long imageId,
+            HttpServletRequest httpServletRequest
     ) {
-        Job job = jobService.getSingleJobByCompany(internshipId);
+        Job job = jobService.getSingleJobByCompany(jobId, httpServletRequest);
 
         boolean removed = job.getImages().removeIf(image -> image.getId().equals(imageId));
 
